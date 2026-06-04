@@ -16,16 +16,16 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0e0e0f;
+      --bg: #0a0a0c;
       --surface: #161618;
       --border: #2a2a2e;
       --text: #e8e8e6;
-      --muted: #666;
+      --muted: #777;
       --accent: #e8f04a;
-      --accent-dim: rgba(232,240,74,0.12);
+      --accent-glow: #e8f04a88;
       --user-bg: #1e1e22;
       --assistant-bg: #131315;
-      --radius: 6px;
+      --radius: 8px;
       --font-mono: 'IBM Plex Mono', monospace;
       --font-sans: 'IBM Plex Sans', sans-serif;
     }
@@ -45,191 +45,159 @@
     header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 14px 20px;
+      padding: 12px 20px;
       border-bottom: 1px solid var(--border);
-      background: var(--surface);
+      background: rgba(22, 22, 24, 0.95);
+      backdrop-filter: blur(12px);
       flex-shrink: 0;
-      gap: 12px;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-family: var(--font-mono);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--accent);
-      letter-spacing: 0.05em;
-      white-space: nowrap;
-    }
-    .logo img {
-      height: 32px;
-      filter: brightness(1.1) drop-shadow(0 0 6px var(--accent));
-      opacity: 0.95;
+      z-index: 10;
     }
 
     .header-controls {
       display: flex;
       align-items: center;
-      gap: 10px;
-      flex: 1;
-      max-width: 640px;
+      gap: 12px;
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
     }
 
     select, input[type="password"] {
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 7px 10px;
+      padding: 8px 12px;
       border-radius: var(--radius);
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 12px;
       outline: none;
-      transition: border-color 0.15s;
+      transition: all 0.2s;
     }
     select:focus, input[type="password"]:focus {
       border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
     }
     select { flex: 1; cursor: pointer; }
-    input[type="password"] { flex: 1.2; }
-
-    select option { background: #1a1a1c; }
+    input[type="password"] { flex: 1.1; }
 
     .clear-btn {
-      background: none;
+      background: transparent;
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: 7px 12px;
+      padding: 8px 14px;
       border-radius: var(--radius);
       cursor: pointer;
       font-family: var(--font-mono);
-      font-size: 11px;
-      transition: all 0.15s;
+      font-size: 12px;
+      transition: all 0.2s;
       white-space: nowrap;
     }
-    .clear-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .clear-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(232,240,74,0.08);
+    }
 
-    /* Messages */
+    /* Messages Area */
     #messages {
       flex: 1;
       overflow-y: auto;
-      padding: 24px 0;
+      padding: 32px 0;
       scroll-behavior: smooth;
+      position: relative;
+      background: radial-gradient(circle at center, rgba(232,240,74,0.03) 0%, transparent 70%);
     }
-    #messages::-webkit-scrollbar { width: 4px; }
+
+    #messages::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 420px;
+      height: 420px;
+      max-width: 65%;
+      max-height: 65%;
+      background: url('/icon-512.JPEG') center/contain no-repeat;
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+      filter: brightness(1.15) drop-shadow(0 0 40px var(--accent));
+      transition: opacity 0.4s;
+    }
+
+    #messages:hover::before { opacity: 0.22; }
+
+    #messages > * { position: relative; z-index: 1; }
+
+    #messages::-webkit-scrollbar { width: 5px; }
     #messages::-webkit-scrollbar-track { background: transparent; }
-    #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    #messages::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
 
     .message {
       display: flex;
-      gap: 16px;
-      padding: 16px 24px;
-      animation: fadeUp 0.2s ease;
+      gap: 18px;
+      padding: 18px 28px;
+      animation: fadeUp 0.3s ease;
+      max-width: 860px;
+      margin: 0 auto;
     }
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
     .message.user { background: var(--user-bg); }
     .message.assistant { background: var(--assistant-bg); }
-    .message.error .content { color: #f07070; font-family: var(--font-mono); font-size: 12px; }
+    .message.error .content { color: #ff6b6b; }
 
     .role-tag {
       font-family: var(--font-mono);
       font-size: 10px;
       font-weight: 500;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      padding-top: 2px;
-      width: 60px;
+      padding-top: 3px;
+      width: 52px;
       flex-shrink: 0;
+      color: var(--muted);
     }
     .user .role-tag { color: var(--accent); }
-    .assistant .role-tag { color: var(--muted); }
 
     .content {
       flex: 1;
-      line-height: 1.7;
-      font-size: 14px;
+      line-height: 1.75;
+      font-size: 14.5px;
       font-weight: 300;
-      white-space: pre-wrap;
-      word-break: break-word;
     }
 
-    /* Code blocks */
-    .content code {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      background: rgba(255,255,255,0.06);
-      padding: 2px 6px;
-      border-radius: 3px;
-    }
-    .content pre {
-      background: #0a0a0b;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      overflow-x: auto;
-      margin: 10px 0;
-    }
-    .content pre code {
-      background: none;
-      padding: 0;
-      font-size: 12px;
-    }
-
-    /* Typing indicator */
-    .typing-dot {
-      display: inline-block;
-      width: 6px; height: 6px;
-      background: var(--muted);
-      border-radius: 50%;
-      animation: blink 1.2s infinite;
-    }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes blink {
-      0%,80%,100% { opacity: 0.2; }
-      40% { opacity: 1; }
-    }
-
-    /* Empty state */
+    /* Empty */
     #empty {
+      position: absolute;
+      inset: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100%;
-      gap: 10px;
       color: var(--muted);
-      position: relative;
-    }
-    #empty .big { 
-      font-family: var(--font-mono); 
-      font-size: 120px; 
-      color: rgba(232, 240, 74, 0.08); 
-      position: absolute;
-      opacity: 0.2;
       pointer-events: none;
     }
-    #empty p { font-size: 13px; opacity: 0.6; }
+    #empty .big { font-size: 22px; opacity: 0.4; }
 
-    /* Input area */
+    /* Input */
     footer {
       border-top: 1px solid var(--border);
-      background: var(--surface);
-      padding: 14px 20px;
+      background: rgba(22,22,24,0.98);
+      backdrop-filter: blur(12px);
+      padding: 16px 20px;
       flex-shrink: 0;
     }
 
     .input-row {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       align-items: flex-end;
-      max-width: 900px;
+      max-width: 860px;
       margin: 0 auto;
     }
 
@@ -238,39 +206,35 @@
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 10px 14px;
+      padding: 14px 18px;
       border-radius: var(--radius);
       font-family: var(--font-sans);
-      font-size: 14px;
-      font-weight: 300;
+      font-size: 15px;
+      line-height: 1.6;
       resize: none;
       outline: none;
-      line-height: 1.5;
-      max-height: 200px;
-      transition: border-color 0.15s;
-      overflow-y: auto;
+      max-height: 220px;
+      transition: all 0.2s;
     }
-    textarea:focus { border-color: var(--accent); }
-    textarea::placeholder { color: var(--muted); }
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
 
     #send-btn {
       background: var(--accent);
       color: #0e0e0f;
       border: none;
-      padding: 10px 18px;
+      padding: 12px 22px;
       border-radius: var(--radius);
       font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 500;
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-      white-space: nowrap;
-      letter-spacing: 0.03em;
-      height: 40px;
+      transition: all 0.2s;
+      height: 48px;
     }
-    #send-btn:hover { opacity: 0.88; }
-    #send-btn:active { transform: scale(0.97); }
-    #send-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+    #send-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--accent-glow); }
 
     .token-info {
       text-align: right;
@@ -278,41 +242,29 @@
       font-size: 10px;
       color: var(--muted);
       margin-top: 6px;
-      max-width: 900px;
+      max-width: 860px;
       margin-left: auto;
       margin-right: auto;
     }
 
-    @media (max-width: 600px) {
-      header { flex-wrap: wrap; padding: 10px 12px; gap: 8px; }
-      .logo { font-size: 12px; }
-      .header-controls { max-width: 100%; flex-wrap: wrap; gap: 6px; }
-      select { font-size: 11px; padding: 6px 8px; flex: 1 1 100%; }
-      input[type="password"] { font-size: 11px; padding: 6px 8px; flex: 1 1 100%; }
-      .clear-btn { font-size: 11px; padding: 6px 10px; }
-      .message { padding: 10px 12px; gap: 8px; }
-      .role-tag { width: 36px; font-size: 9px; }
-      .content { font-size: 13px; }
-      footer { padding: 8px 12px; }
+    @media (max-width: 640px) {
+      .message { padding: 14px 16px; gap: 12px; }
+      #messages::before { width: 280px; height: 280px; }
       textarea { font-size: 16px; }
-      #send-btn { padding: 10px 14px; font-size: 11px; }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">
-    <img src="/icon-512.JPEG" alt="JiveAI">
-  </div>
   <div class="header-controls">
     <input type="password" id="api-key" placeholder="sk-or-v1-… API key" autocomplete="off"/>
     <select id="model-select">
       <optgroup label="Dolphin Free">
         <option value="cognitivecomputations/dolphin-mistral-24b-venice-edition:free">🐬 Dolphin Venice Free</option>
       </optgroup>
-      <optgroup label="Free Models">
-        <option value="qwen/qwen2.5-72b-instruct:free">Qwen 2.5 72B</option>
+      <optgroup label="Free OpenRouter">
+        <option value="qwen/qwen2.5-72b-instruct:free">Qwen2.5 72B</option>
         <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B</option>
         <option value="meta-llama/llama-3.1-405b-instruct:free">Llama 3.1 405B</option>
         <option value="google/gemma-2-27b-it:free">Gemma 2 27B</option>
@@ -323,7 +275,11 @@
         <option value="mistralai/mistral-7b-instruct:free">Mistral 7B</option>
         <option value="google/gemma-2-9b-it:free">Gemma 2 9B</option>
         <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B</option>
-        <!-- Additional free models to reach ~25 total available on OpenRouter -->
+        <option value="qwen/qwen2.5-coder-32b-instruct:free">Qwen Coder 32B</option>
+        <option value="mistralai/mistral-small-24b-instruct:free">Mistral Small 24B</option>
+        <option value="google/gemma-2-2b-it:free">Gemma 2 2B</option>
+        <option value="meta-llama/llama-3.2-11b-vision:free">Llama 3.2 11B</option>
+        <option value="qwen/qwen2.5-32b-instruct:free">Qwen2.5 32B</option>
       </optgroup>
     </select>
     <button class="clear-btn" onclick="clearChat()">Clear</button>
@@ -332,8 +288,7 @@
 
 <div id="messages">
   <div id="empty">
-    <div class="big">JIVE</div>
-    <p>Free Tier • Paste API key above</p>
+    <div class="big">⬡</div>
   </div>
 </div>
 
@@ -356,25 +311,22 @@
   const emptyEl    = document.getElementById('empty');
   const tokenInfo  = document.getElementById('token-info');
 
-  // Auto-resize textarea
   inputEl.addEventListener('input', () => {
     inputEl.style.height = 'auto';
-    inputEl.style.height = Math.min(inputEl.scrollHeight, 200) + 'px';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 220) + 'px';
   });
 
-  // Cmd/Ctrl+Enter or Enter (no shift) to send
   inputEl.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
   });
 
-  // Persist API key
   const savedKey = localStorage.getItem('or_api_key');
   if (savedKey) document.getElementById('api-key').value = savedKey;
   document.getElementById('api-key').addEventListener('change', e => {
     localStorage.setItem('or_api_key', e.target.value.trim());
   });
 
-  function getKey()   { return document.getElementById('api-key').value.trim(); }
+  function getKey() { return document.getElementById('api-key').value.trim(); }
   function getModel() { return document.getElementById('model-select').value; }
 
   function appendMessage(role, content, isTyping = false) {
@@ -382,11 +334,8 @@
     const div = document.createElement('div');
     div.className = `message ${role}`;
     div.innerHTML = `
-      <span class="role-tag">${role === 'user' ? 'You' : 'AI'}</span>
-      <div class="content">${isTyping
-        ? '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>'
-        : escapeHtml(content)
-      }</div>`;
+      <span class="role-tag">${role === 'user' ? 'YOU' : 'AI'}</span>
+      <div class="content">${isTyping ? '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>' : escapeHtml(content)}</div>`;
     messagesEl.appendChild(div);
     scrollToBottom();
     return div.querySelector('.content');
@@ -419,7 +368,8 @@
     if (!key) {
       const contentEl = appendMessage('assistant', '', false);
       contentEl.closest('.message').classList.add('error');
-      contentEl.textContent = 'Paste OpenRouter API key in header first.';
+      contentEl.textContent = 'Paste your OpenRouter API key in the header.';
+      setLoading(false);
       return;
     }
 
@@ -439,32 +389,22 @@
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${key}`,
           'HTTP-Referer': window.location.href,
-          'X-Title': 'OpenRouter Chat'
+          'X-Title': 'JiveAI'
         },
-        body: JSON.stringify({
-          model: getModel(),
-          messages: history,
-          stream: true
-        })
+        body: JSON.stringify({ model: getModel(), messages: history, stream: true })
       });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error?.message || `HTTP ${res.status}`);
-      }
+      if (!res.ok) throw new Error((await res.json()).error?.message || `HTTP ${res.status}`);
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let full = '';
-      let usage = null;
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
         const chunk = decoder.decode(value);
         const lines = chunk.split('\n').filter(l => l.startsWith('data: '));
-
         for (const line of lines) {
           const data = line.slice(6).trim();
           if (data === '[DONE]') continue;
@@ -474,19 +414,11 @@
             full += delta;
             contentEl.innerHTML = escapeHtml(full) || '…';
             scrollToBottom();
-            if (json.usage) usage = json.usage;
           } catch {}
         }
       }
 
       history.push({ role: 'assistant', content: full });
-
-      if (usage) {
-        totalTokens += (usage.total_tokens || 0);
-        tokenInfo.textContent =
-          `last: ${usage.prompt_tokens}↑ ${usage.completion_tokens}↓ · session: ${totalTokens} tokens`;
-      }
-
     } catch (err) {
       contentEl.closest('.message').classList.add('error');
       contentEl.textContent = `Error: ${err.message}`;
@@ -498,8 +430,6 @@
 
   function clearChat() {
     history = [];
-    totalTokens = 0;
-    tokenInfo.textContent = '';
     messagesEl.innerHTML = '';
     messagesEl.appendChild(emptyEl);
     emptyEl.style.display = 'flex';
