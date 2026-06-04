@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JiveAI</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #111; color: #ddd; margin: 0; padding: 0; }
+        .container { max-width: 800px; margin: 20px auto; padding: 20px; }
+        input, select, button, textarea { width: 100%; padding: 12px; margin: 8px 0; background: #222; border: 1px solid #444; color: #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { background: #0f0; color: #000; font-weight: bold; cursor: pointer; }
+        button:hover { background: #0c0; }
+        .chat { height: 60vh; overflow-y: auto; padding: 15px; background: #1a1a1a; border-radius: 8px; margin: 15px 0; }
+        .message { margin: 12px 0; padding: 10px; border-radius: 8px; max-width: 80%; white-space: pre-wrap; }
+        .user { background: #333; margin-left: auto; }
+        .ai { background: #222; }
+        .settings { margin-bottom: 20px; }
+        .provider-tabs { display: flex; gap: 8px; margin: 8px 0; }
+        .tab { flex: 1; padding: 8px; background: #222; border: 1px solid #444; color: #aaa; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .tab.active { background: #0f0; color: #000; border-color: #0f0; }
+        optgroup { background: #222; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="color:#0f0">JiveAI</h1>
+
+        <div class="settings">
+            <div class="provider-tabs">
+                <button class="tab active" onclick="switchProvider('openrouter')">OpenRouter</button>
+                <button class="tab" onclick="switchProvider('venice')">Venice</button>
+            </div>
+
+            <div id="openrouter-settings">
+                <input type="password" id="openrouter" placeholder="OpenRouter API Key (sk-or-...)">
+                <select id="openrouter-model">
+                    <optgroup label="── Free Models ──">
+                        <option value="openrouter/free">openrouter/free (random free)</option>
+                        <option value="google/gemma-4-31b-it:free">Google Gemma 4 31B IT (free)</option>
+                        <option value="google/gemma-4-26b-a4b-it:free">Google Gemma 4 26B A4B IT (free)</option>
+                        <option value="nvidia/nemotron-3-super-120b-a12b:free">NVIDIA Nemotron 3 Super 120B (free)</option>
+                        <option value="nvidia/nemotron-3-nano-30b-a3b:free">NVIDIA Nemotron 3 Nano 30B (free)</option>
+                        <option value="nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free">NVIDIA Nemotron Nano Omni 30B Reasoning (free)</option>
+                        <option value="nvidia/nemotron-nano-12b-v2-vl:free">NVIDIA Nemotron Nano 12B v2 VL (free)</option>
+                        <option value="nvidia/nemotron-nano-9b-v2:free">NVIDIA Nemotron Nano 9B v2 (free)</option>
+                        <option value="openai/gpt-oss-120b:free">OpenAI GPT-OSS 120B (free)</option>
+                        <option value="openai/gpt-oss-20b:free">OpenAI GPT-OSS 20B (free)</option>
+                        <option value="meta-llama/llama-3.3-70b-instruct:free">Meta Llama 3.3 70B Instruct (free)</option>
+                        <option value="meta-llama/llama-3.2-3b-instruct:free">Meta Llama 3.2 3B Instruct (free)</option>
+                        <option value="qwen/qwen3-coder:free">Qwen3 Coder (free)</option>
+                        <option value="qwen/qwen3-next-80b-a3b-instruct:free">Qwen3 Next 80B A3B Instruct (free)</option>
+                        <option value="z-ai/glm-4.5-air:free">Z.ai GLM 4.5 Air (free)</option>
+                        <option value="moonshotai/kimi-k2.6:free">Moonshot Kimi K2.6 (free)</option>
+                        <option value="poolside/laguna-xs.2:free">Poolside Laguna XS.2 (free)</option>
+                        <option value="poolside/laguna-m.1:free">Poolside Laguna M.1 (free)</option>
+                        <option value="nousresearch/hermes-3-llama-3.1-405b:free">Nous Hermes 3 Llama 3.1 405B (free)</option>
+                        <option value="liquid/lfm-2.5-1.2b-thinking:free">LiquidAI LFM 2.5 1.2B Thinking (free)</option>
+                        <option value="liquid/lfm-2.5-1.2b-instruct:free">LiquidAI LFM 2.5 1.2B Instruct (free)</option>
+                        <option value="cognitivecomputations/dolphin-mistral-24b-venice-edition:free">Dolphin Mistral 24B Venice Edition (free)</option>
+                        <option value="openrouter/owl-alpha">OpenRouter Owl Alpha (free)</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div id="venice-settings" style="display:none">
+                <input type="password" id="venice" placeholder="Venice API Key (vapi_...)">
+                <select id="venice-model">
+                    <optgroup label="── Anthropic (via Venice) ──">
+                        <option value="claude-opus-4-8">Claude Opus 4.8</option>
+                        <option value="claude-opus-4-8-fast">Claude Opus 4.8 Fast</option>
+                        <option value="claude-opus-4-7-fast">Claude Opus 4.7 Fast</option>
+                        <option value="claude-opus-45">Claude Opus 4.5</option>
+                        <option value="claude-sonnet-45">Claude Sonnet 4.5</option>
+                    </optgroup>
+                    <optgroup label="── OpenAI (via Venice) ──">
+                        <option value="openai-gpt-55-pro">GPT-5.5 Pro</option>
+                    </optgroup>
+                    <optgroup label="── DeepSeek ──">
+                        <option value="deepseek-v4-pro">DeepSeek V4 Pro</option>
+                        <option value="deepseek-v4-flash">DeepSeek V4 Flash</option>
+                    </optgroup>
+                    <optgroup label="── Alibaba Qwen ──">
+                        <option value="qwen-3-7-plus">Qwen 3.7 Plus</option>
+                        <option value="qwen-3-7-max">Qwen 3.7 Max</option>
+                        <option value="qwen3-6-27b">Qwen 3.6 27B</option>
+                    </optgroup>
+                    <optgroup label="── Google ──">
+                        <option value="gemini-3-5-flash">Gemini 3.5 Flash</option>
+                        <option value="e2ee-gemma-4-31b">Gemma 4 31B (TEE)</option>
+                        <option value="e2ee-gemma-4-26b-a4b-uncensored-p">Gemma 4 26B Uncensored (TEE)</option>
+                    </optgroup>
+                    <optgroup label="── xAI ──">
+                        <option value="grok-build-0-1">Grok Build 0.1</option>
+                    </optgroup>
+                    <optgroup label="── MiniMax ──">
+                        <option value="minimax-m3">MiniMax M3</option>
+                    </optgroup>
+                    <optgroup label="── Uncensored / TEE ──">
+                        <option value="e2ee-qwen3-6-35b-a3b-uncensored-p">Qwen3.6 35B Uncensored (TEE)</option>
+                        <option value="e2ee-qwen3-6-35b-a3b">Qwen3.6 35B FP8 (TEE)</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <button onclick="saveSettings()">Save Keys & Model</button>
+        </div>
+
+        <div class="chat" id="chat"></div>
+
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="input" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+        <button onclick="clearChat()" style="background:#f00;color:#fff;margin-top:10px">Clear Conversation</button>
+    </div>
+
+    <script>
+        let activeProvider = 'openrouter';
+
+        function switchProvider(p) {
+            activeProvider = p;
+            document.getElementById('openrouter-settings').style.display = p === 'openrouter' ? '' : 'none';
+            document.getElementById('venice-settings').style.display = p === 'venice' ? '' : 'none';
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                t.classList.toggle('active', (i === 0 && p === 'openrouter') || (i === 1 && p === 'venice'));
+            });
+            localStorage.setItem('activeProvider', p);
+        }
+
+        function saveSettings() {
+            localStorage.setItem('openrouter', document.getElementById('openrouter').value.trim());
+            localStorage.setItem('venice', document.getElementById('venice').value.trim());
+            localStorage.setItem('openrouter-model', document.getElementById('openrouter-model').value);
+            localStorage.setItem('venice-model', document.getElementById('venice-model').value);
+            localStorage.setItem('activeProvider', activeProvider);
+            alert('Settings saved');
+        }
+
+        function loadSettings() {
+            document.getElementById('openrouter').value = localStorage.getItem('openrouter') || '';
+            document.getElementById('venice').value = localStorage.getItem('venice') || '';
+            document.getElementById('openrouter-model').value = localStorage.getItem('openrouter-model') || 'openrouter/free';
+            document.getElementById('venice-model').value = localStorage.getItem('venice-model') || 'deepseek-v4-flash';
+            const saved = localStorage.getItem('activeProvider') || 'openrouter';
+            switchProvider(saved);
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            addMessage(msg, 'user');
+            input.value = '';
+
+            if (activeProvider === 'openrouter') {
+                await sendOpenRouter(msg);
+            } else {
+                await sendVenice(msg);
+            }
+        }
+
+        async function sendOpenRouter(msg) {
+            const model = localStorage.getItem('openrouter-model') || document.getElementById('openrouter-model').value;
+            const key = localStorage.getItem('openrouter');
+            if (!key || !model) { addMessage('Missing OpenRouter API key or model', 'ai'); return; }
+            try {
+                const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.href,
+                        'X-Title': 'JiveAI'
+                    },
+                    body: JSON.stringify({ model, messages: [{ role: 'user', content: msg }] })
+                });
+                if (!res.ok) throw new Error('API error: ' + res.status);
+                const data = await res.json();
+                const reply = data.choices?.[0]?.message?.content || 'No response';
+                addMessage(reply, 'ai');
+            } catch (e) { addMessage('Error: ' + e.message, 'ai'); }
+        }
+
+        async function sendVenice(msg) {
+            const model = localStorage.getItem('venice-model') || document.getElementById('venice-model').value;
+            const key = localStorage.getItem('venice');
+            if (!key || !model) { addMessage('Missing Venice API key or model', 'ai'); return; }
+            try {
+                const res = await fetch('https://api.venice.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ model, messages: [{ role: 'user', content: msg }] })
+                });
+                if (!res.ok) throw new Error('API error: ' + res.status);
+                const data = await res.json();
+                const reply = data.choices?.[0]?.message?.content || 'No response';
+                addMessage(reply, 'ai');
+            } catch (e) { addMessage('Error: ' + e.message, 'ai'); }
+        }
+
+        function addMessage(text, sender) {
+            const chat = document.getElementById('chat');
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+            div.textContent = text;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function clearChat() {
+            document.getElementById('chat').innerHTML = '';
+        }
+
+        window.onload = loadSettings;
+    </script>
+</body>
+</html>
